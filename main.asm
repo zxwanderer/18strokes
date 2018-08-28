@@ -4,28 +4,61 @@
 
 	ORG	#8000
 START:
-		DI
-        XOR A
-LOOP0
-		LD	HL,#4000+192
-		LD	B,192 
-        ; +24
-LOOP1
-		LD	C,32	;в регистр C кладем ширину экрана в байтах
-LOOP2
-		LD	(HL),A	;кладем по адресу, заданному регистром HL значение регистра A
-        OUT (#FE), A
 
-		INC	HL	;увеличиваем на единицу адрес экрана
-		DEC	A	;уменьшаем на единицу значение в регистре A, просто чтобы всё время что-то новое выводить
-		DEC	C	;уменьшаем счетчик ширины на единицу
-		JP	NZ,LOOP2;пока C не достигло нуля, прыгаем на LOOP2, иначе идем дальше
-		
-        DEC	B
-		JP	NZ,LOOP1;пока B не достигло нуля, прыгаем на LOOP1, иначе идем дальше
+MAIN_LOOP:
+		LD A, ROW_COLOR
+		LD (MENU_COLOR), A
+		CALL menu_show
+		CALL input.waitKey
+		CALL input.noKey
+		LD A, ROW_BACKGROUND
+		LD (MENU_COLOR), A
+		CALL menu_show
+		CALL move_next
+		JP MAIN_LOOP
 
-		DEC	A	;на единичку уменьшим A, чтобы следующий кадр отрисовывать с чего-то другого
-		JP	LOOP0	;зарисовали весь экран ерундой, начнем сначала, но уже с тем A, какой попадется
+move_next:
+	LD A, MENU_MAX_NUM
+	DEC A
+	JP NZ, move_next1
+	LD A, MENU_MAX_NUM
+	LD (MENU_CUR_NUM),A
+	LD A, MENU_TOP_Y
+	LD (MENU_ROW), A
+	RET
+move_next1:
+	LD (MENU_CUR_NUM),A
+	LD HL, MENU_ROW
+	INC (HL)
+	RET
+
+menu_show:
+	LD DE, MENU_TOP_Y*256 + MENU_TOP_X
+menu_set_paper:
+	LD C, PAPER_RED
+	LD B, 10
+	CALL screen.attrLine
+	RET
+
+; текущий пункт меню
+MENU_CUR_NUM equ move_next+1
+MENU_ROW equ menu_show+2
+MENU_COLOR equ menu_set_paper+1
+
+	include "zxengine/core/defines.asm"
+	include "zxengine/core/routines/math.asm"
+	include "zxengine/core/routines/input.asm"
+	include "zxengine/core/routines/screen.asm"
+
+; координаты Y,X верхнего левого края меню
+MENU_TOP_Y equ 5
+MENU_TOP_X equ 5
+
+; максимальное кол-во пунктов меню
+MENU_MAX_NUM equ 5
+
+ROW_COLOR equ PAPER_BLUE
+ROW_BACKGROUND equ PAPER_CYAN
 
 		SAVESNA "out/main.sna",START
 
