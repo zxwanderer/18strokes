@@ -3,9 +3,13 @@
     DEVICE 	ZXSPECTRUM128
 
 	ORG	#8000
-START:
+START_PROG:
+
+DFILE_ADDR: equ 0
 
 MAIN_LOOP:
+		CALL music5.init
+		CALL savage.START
 		LD A, ROW_COLOR
 		LD (MENU_COLOR), A
 		CALL menu_show
@@ -60,5 +64,77 @@ MENU_MAX_NUM equ 5
 ROW_COLOR equ PAPER_BLUE
 ROW_BACKGROUND equ PAPER_CYAN
 
-		SAVESNA "out/main.sna",START
+SONG_INITDATA_0_PTR: DEFW 00
+ORN_OFFSETS_PTR: DEFW 00
+ORNAMENTS_DATA_PTR: DEFW 00
+
+module savage
+	include "zxengine/core/routines/music_savage.asm"
+endmodule
+
+module music1
+init:
+	LD HL, SONG_INITDATA_0
+	LD (SONG_INITDATA_0_PTR), HL
+	LD HL, ORN_OFFSETS
+	LD (ORN_OFFSETS_PTR), HL
+	LD HL, ORNAMENTS_DATA
+	LD (ORNAMENTS_DATA_PTR), HL
+	RET
+	include "music/e18.asm"
+endmodule
+
+module music2
+init:
+	LD HL, SONG_INITDATA_0
+	LD (SONG_INITDATA_0_PTR), HL
+	LD HL, ORN_OFFSETS
+	LD (ORN_OFFSETS_PTR), HL
+	LD HL, ORNAMENTS_DATA
+	LD (ORNAMENTS_DATA_PTR), HL
+	RET
+	include "music/Steenab.asm"
+endmodule
+
+module music3
+init:
+	LD HL, SONG_INITDATA_0
+	LD (SONG_INITDATA_0_PTR), HL
+	LD HL, ORN_OFFSETS
+	LD (ORN_OFFSETS_PTR), HL
+	LD HL, ORNAMENTS_DATA
+	LD (ORNAMENTS_DATA_PTR), HL
+	RET
+	include "music/SteenOne.asm"
+endmodule
+
+module music4
+init:
+	LD HL, SONG_INITDATA_0
+	LD (SONG_INITDATA_0_PTR), HL
+	LD HL, ORN_OFFSETS
+	LD (ORN_OFFSETS_PTR), HL
+	LD HL, ORNAMENTS_DATA
+	LD (ORNAMENTS_DATA_PTR), HL
+	RET
+	include "music/Tantin.asm"
+endmodule
+
+module music5
+init:
+	LD HL, SONG_INITDATA_0
+	LD (SONG_INITDATA_0_PTR), HL
+	LD HL, ORN_OFFSETS
+	LD (ORN_OFFSETS_PTR), HL
+	LD HL, ORNAMENTS_DATA
+	LD (ORNAMENTS_DATA_PTR), HL
+	RET
+	include "music/TraTeen.asm"
+endmodule
+
+ENDALL
+
+	SAVESNA "out/main.sna",START_PROG
+
+	DISPLAY START_PROG, ' ', ENDALL
 
