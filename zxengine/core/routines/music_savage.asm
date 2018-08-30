@@ -12,6 +12,12 @@ VECTOR_TABLE_LOC:    EQU $FE00
 BORDER_CLR:          EQU $0
  
 START:
+              CALL SET_INTERRUPT
+              CALL INIT_MUSIC
+              CALL PLAY_MUSIC
+              RET
+ 
+SET_INTERRUPT:
               PUSH  AF
               LD    HL,VECTOR_TABLE_LOC
               LD    DE,VECTOR_TABLE_LOC + 1
@@ -29,8 +35,9 @@ START:
               IM    2
               EI                       ; Enable IM2 routine at $F0F0
               POP   AF
-              CALL  INIT_MUSIC
-              CALL  PLAY_MUSIC
+    RET
+
+UNSET_INERRUPT:
               IM    1
               LD    IY,$5C3A           ; Set up IY and
               LD    HL,$2758           ; HL' with sensible values for
@@ -45,7 +52,8 @@ INIT_MUSIC:
               PUSH  DE
               PUSH  HL
               PUSH  IX
-              LD    HL,(SONG_INITDATA_0_PTR)
+SONG_INITDATA_SET:
+              LD    HL,SONG_INITDATA_0
               LD    IX,CHAN_0_DATA
               LD    C,$11              ; Length of channel data
 LE4BB:
@@ -412,7 +420,7 @@ PATSTEP_LOOP:
               JR    C,SET_NOTELEN  ; Is E0 to FF (set note length)
               ADD   A,$20          ; Else is an arpeggio (C0 - DF)
               LD    C,A
-LD_HL_ORNOFF: LD    HL,(ORN_OFFSETS_PTR)
+LD_HL_ORNOFF: LD    HL,ORN_OFFSETS
               ADD   HL,BC
               LD    A,(HL)
               LD    (IX + CHAN_ORN_BASE),A
@@ -461,7 +469,7 @@ SETUP_GEN_CHAN:
               SUB    A
               LD     D,A
               LD     E,(IX + CHAN_ORN_BASE)
-LD_HL_ORNDAT: LD     HL,(ORNAMENTS_DATA_PTR)
+LD_HL_ORNDAT: LD     HL,ORNAMENTS_DATA
               ADD    HL,DE
               LD     E,(IX + CHAN_ORN_COUNT)
               ADD    HL,DE
