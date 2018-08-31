@@ -4,35 +4,28 @@
 
 	ORG	#6000
 START_PROG:
+	XOR A
+	OUT (#FE), A
+
+	LD HL, intro_ptr
+
+	LD DE, #4000
+	CALL dzx7_standard
+
+	CALL input.waitKey
+	CALL input.noKey
+
+	LD HL, screen_ptr
+	LD DE, #4000
+	CALL dzx7_standard
 
 MAIN_LOOP:
 
-/*
-		CALL music1.init
-		CALL savage.START
-		
-		CALL music2.init
-		CALL savage.START
-
-		CALL music3.init
-		CALL savage.START
-
-		CALL music4.init
-		CALL savage.START
-
-		CALL music5.init
-		CALL savage.START
-
-		RET
-
-*/
 		LD A, ROW_COLOR
 		LD (MENU_COLOR), A
 		CALL menu_show
-		; CALL input.waitKey
 		
 		CALL play
-		; CALL input.noKey
 
 		LD A, ROW_BACKGROUND
 		LD (MENU_COLOR), A
@@ -41,21 +34,11 @@ MAIN_LOOP:
 		JP MAIN_LOOP
 
 play:
-; 	LD B, (MENU_CUR_NUM)
-; 	DEC B
-; 	JP NZ, play_calc_loop_end
-; 	LD HL, music_list
-; play_calc_loop:
-; 	INC HL
-; 	DJNZ play_calc_loop
-; play_calc_loop_end
-; 	CALL callHL
-; 	; CALL savage.START
 CUR_MUSIC_INIT_PTR:
 	LD HL, (music_list)
 	CALL callHL
 	CALL savage.START
-	; CALL input.waitKey
+	CALL input.noKey
 	RET
 
 callHL  JP (hl)
@@ -64,10 +47,10 @@ music_list:
 	defw music1.init, music2.init, music3.init, music4.init, music5.init
 
 move_next:
-	LD A, MENU_MAX_NUM
+	LD A, MENU_HEIGHT
 	DEC A
 	JP NZ, move_next1
-	LD A, MENU_MAX_NUM
+	LD A, MENU_HEIGHT
 	LD (MENU_CUR_NUM),A
 	LD A, MENU_TOP_Y
 	LD (MENU_ROW), A
@@ -87,7 +70,7 @@ menu_show:
 	LD DE, MENU_TOP_Y*256 + MENU_TOP_X
 menu_set_paper:
 	LD C, PAPER_RED
-	LD B, 10
+	LD B, MENU_WIDTH
 	CALL screen.attrLine
 	RET
 
@@ -103,20 +86,16 @@ CUR_MUSIC_INIT equ CUR_MUSIC_INIT_PTR+1
 	include "zxengine/core/routines/math.asm"
 	include "zxengine/core/routines/input.asm"
 	include "zxengine/core/routines/screen.asm"
+	include "zxengine/core/routines/zx7.a80"
 
 ; координаты Y,X верхнего левого края меню
-MENU_TOP_Y equ 5
-MENU_TOP_X equ 5
+MENU_TOP_Y equ 7
+MENU_TOP_X equ 15
+MENU_WIDTH equ 6
+MENU_HEIGHT equ 5 ; максимальное кол-во пунктов меню
 
-; максимальное кол-во пунктов меню
-MENU_MAX_NUM equ 5
-
-ROW_COLOR equ PAPER_BLUE
-ROW_BACKGROUND equ PAPER_CYAN
-
-; SONG_INITDATA_0_PTR: DEFW 00
-; ORN_OFFSETS_PTR: DEFW 00
-; ORNAMENTS_DATA_PTR: DEFW 00
+ROW_COLOR equ %00111000
+ROW_BACKGROUND equ %00101000
 
 module savage
 SONG_INITDATA_0 equ #0000
@@ -165,9 +144,26 @@ init:
 	include "music/TraTeen.asm"
 endmodule
 
+screen_ptr:
+	incbin "graph/luNNNa.scr.zx7"
+
+intro_ptr:
+	incbin "graph/aertitle.scr.zx7"
+
 ENDALL
 
 	SAVESNA "out/main.sna",START_PROG
 
 	DISPLAY START_PROG, ' ', ENDALL
+
+boot.LOAD_ADDR equ START_PROG
+boot.begin equ START_PROG
+boot.end equ ENDALL
+boot.START_ADDR equ START_PROG
+
+  include "zxengine/core/routines/basic_boot_trd.asm"
+  EMPTYTRD "aerparty.trd" ;create empty TRD image
+  SAVETRD "aerparty.trd", "AERPARTY.B", boot.Basic, boot.EndBasic - boot.Basic
+  SAVETRD "aerparty.trd","AERPARTY.C",boot.begin,boot.end-boot.begin
+
 
