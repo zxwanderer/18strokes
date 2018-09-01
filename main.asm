@@ -162,8 +162,8 @@ boot.end equ ENDALL
 boot.START_ADDR equ START_PROG
 
   include "zxengine/core/routines/basic_boot_trd.asm"
-  EMPTYTRD "aerparty.trd" ;create empty TRD image
-  SAVETRD "aerparty.trd", "AERPARTY.B", boot.Basic, boot.EndBasic - boot.Basic
-  SAVETRD "aerparty.trd","AERPARTY.C",boot.begin,boot.end-boot.begin
+  EMPTYTRD "18StrokesCat.trd" ;create empty TRD image
+  SAVETRD "18StrokesCat.trd", "18Stroke.B", boot.Basic, boot.EndBasic - boot.Basic
+  SAVETRD "18StrokesCat.trd","18Stroke.C",boot.begin,boot.end-boot.begin
 
 
