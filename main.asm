@@ -94,8 +94,8 @@ MENU_TOP_X equ 15
 MENU_WIDTH equ 6
 MENU_HEIGHT equ 5 ; максимальное кол-во пунктов меню
 
-ROW_COLOR equ %00111000
-ROW_BACKGROUND equ %00101000
+ROW_COLOR equ %01100000
+ROW_BACKGROUND equ %01100101
 
 module savage
 SONG_INITDATA_0 equ #0000
