@@ -4,6 +4,7 @@
 
 	ORG	#6000
 START_PROG:
+	EI
 	XOR A
 	OUT (#FE), A
 
@@ -12,12 +13,19 @@ START_PROG:
 	LD DE, #4000
 	CALL dzx7_standard
 
-	CALL input.waitKey
-	CALL input.noKey
+	CALL wait_50
+
+	; CALL input.waitKey
+	; CALL input.noKey
 
 	LD HL, screen_ptr
-	LD DE, #4000
+	LD DE, #C000
 	CALL dzx7_standard
+
+	LD      HL,#C000
+	LD      BC,6912
+    LD      DE,#4000
+    LDIR
 
 MAIN_LOOP:
 
@@ -72,6 +80,18 @@ menu_set_paper:
 	LD C, PAPER_RED
 	LD B, MENU_WIDTH
 	CALL screen.attrLine
+	RET
+
+wait_50:
+	LD B, #200
+wait_50_loop
+	HALT
+	XOR A
+	IN A,(#FE)
+	CPL
+	AND 31
+	RET NZ
+	DJNZ wait_50_loop
 	RET
 
 ; текущий пункт меню
