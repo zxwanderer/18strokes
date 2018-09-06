@@ -18,6 +18,8 @@ START_PROG:
 
 	CALL wait_50
 
+	CALL clear_screen_zero
+
 	; CALL input.waitKey
 	; CALL input.noKey
 
@@ -32,10 +34,11 @@ START_PROG:
     LD      DE,#4000
     LDIR
 
+	CALL border_show
+
 	CALL wait_50
 
 MAIN_LOOP:
-
 		LD A, ROW_COLOR
 		LD (MENU_COLOR), A
 		CALL menu_show
@@ -90,15 +93,17 @@ menu_set_paper:
 	RET
 
 wait_50:
-	LD B, #80
+	LD B, 100
 wait_50_loop
 	HALT
 	XOR A
 	IN A,(#FE)
 	CPL
 	AND 31
-	RET NZ
+	JP NZ, wait_50_exit
 	DJNZ wait_50_loop
+wait_50_exit:
+	CALL input.noKey
 	RET
 
 clean_attr:
@@ -108,6 +113,49 @@ clean_attr:
 	LD (HL),0 ;заполнение её нулём
 	LDIR ; (очистка)
 	RET
+
+
+;clear screen in zero
+clear_screen_zero:
+	push hl
+	push bc
+	ld b,7
+l1zxc
+	halt
+	ld hl,22528
+l2zxc
+	ld a,(hl)
+	and 7
+	jr z,l3zxc
+	dec a
+l3zxc
+	ld c,a
+	ld a,(hl)
+	and 56
+	jr z,l4zxc
+	sub 8
+l4zxc
+	or c
+	ld (hl),a
+	inc hl
+	ld a,h
+	cp 91
+	jr nz,l2zxc
+	djnz l1zxc
+	pop bc
+	pop hl
+ ret
+
+border_show:
+	ld a,6
+	halt
+	out (254),a
+	halt
+	ld a,0
+	halt 
+	out (254),a
+	RET
+
 ; текущий пункт меню
 MENU_CUR_NUM equ move_next+1
 MENU_ROW equ menu_show+2
