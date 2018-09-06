@@ -8,8 +8,11 @@ START_PROG:
 	XOR A
 	OUT (#FE), A
 
-	LD HL, intro_ptr
+	CALL clean_attr
 
+	CALL wait_50
+
+	LD HL, intro_ptr
 	LD DE, #4000
 	CALL dzx7_standard
 
@@ -17,6 +20,8 @@ START_PROG:
 
 	; CALL input.waitKey
 	; CALL input.noKey
+
+	CALL clean_attr
 
 	LD HL, screen_ptr
 	LD DE, #C000
@@ -26,6 +31,8 @@ START_PROG:
 	LD      BC,6912
     LD      DE,#4000
     LDIR
+
+	CALL wait_50
 
 MAIN_LOOP:
 
@@ -83,7 +90,7 @@ menu_set_paper:
 	RET
 
 wait_50:
-	LD B, #200
+	LD B, #80
 wait_50_loop
 	HALT
 	XOR A
@@ -94,6 +101,13 @@ wait_50_loop
 	DJNZ wait_50_loop
 	RET
 
+clean_attr:
+	LD HL,ATTR_ADDR ;адрес очищаемой области
+	LD DE,ATTR_ADDR+1
+	LD BC,32*24-1 ;len:длина этой области
+	LD (HL),0 ;заполнение её нулём
+	LDIR ; (очистка)
+	RET
 ; текущий пункт меню
 MENU_CUR_NUM equ move_next+1
 MENU_ROW equ menu_show+2
