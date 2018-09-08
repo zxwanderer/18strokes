@@ -2,6 +2,9 @@
 
     DEVICE 	ZXSPECTRUM128
 
+SCREEN_ADDR equ #4000
+ATTR_ADDR EQU SCREEN_ADDR+#1800
+
 	ORG	#6000
 START_PROG:
 	EI
@@ -87,7 +90,7 @@ move_next1:
 menu_show:
 	LD DE, MENU_TOP_Y*256 + MENU_TOP_X
 menu_set_paper:
-	LD C, PAPER_RED
+	LD C, #00
 	LD B, MENU_WIDTH
 	CALL screen.attrLine
 	RET
@@ -164,8 +167,8 @@ MENU_COLOR equ menu_set_paper+1
 ; два байта - указатель на процедуру инициализации текущей музыки
 CUR_MUSIC_INIT equ CUR_MUSIC_INIT_PTR+1
 
-	include "zxengine/core/defines.asm"
-	include "zxengine/core/routines/math.asm"
+	; include "zxengine/core/defines.asm"
+	; include "zxengine/core/routines/math.asm"
 	include "zxengine/core/routines/input.asm"
 	include "zxengine/core/routines/screen.asm"
 	include "zxengine/core/routines/zx7.a80"
